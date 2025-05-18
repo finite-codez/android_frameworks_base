@@ -18,20 +18,20 @@
 */
 -->
 <resources>
-    <drawable name="screen_background_light">#ffffffff</drawable>
-    <drawable name="screen_background_dark">#ff000000</drawable>
-    <drawable name="status_bar_closed_default_background">#ff000000</drawable>
-    <drawable name="status_bar_opened_default_background">#ff000000</drawable>
-    <drawable name="search_bar_default_color">#ff000000</drawable>
-    <drawable name="safe_mode_background">#60000000</drawable>
+    <drawable name="screen_background_light">#FFFDF9F1</drawable> <!-- Slight warm off-white to go with FF8A48 -->
+    <drawable name="screen_background_dark">#FF1A1A1A</drawable> <!-- Deep grey-black to let neon pop -->
+    <drawable name="status_bar_closed_default_background">#FF2AC20E</drawable> <!-- neon green -->
+    <drawable name="status_bar_opened_default_background">#FF3DFDFF</drawable> <!-- Cyan accent when pulled -->
+    <drawable name="search_bar_default_color">#FFF5DF4D</drawable> <!-- Yellow to mimic spotlight/search -->
+    <drawable name="safe_mode_background">#80FC68B3</drawable> <!-- Semi-transparent pink for caution but playful -->
     <!-- Background drawable that can be used for a transparent activity to
          be able to display a dark UI: this darkens its background to make
          a dark (default theme) UI more visible. -->
-    <drawable name="screen_background_dark_transparent">#80000000</drawable>
+    <drawable name="screen_background_dark_transparent">#CC1A1A1A</drawable> <!-- Slightly transparent deep gray -->
     <!-- Background drawable that can be used for a transparent activity to
          be able to display a light UI: this lightens its background to make
          a light UI more visible. -->
-    <drawable name="screen_background_light_transparent">#80ffffff</drawable>
+    <drawable name="screen_background_light_transparent">#CCFFF9E5</drawable> <!-- Soft translucent yellow tint -->
     <color name="safe_mode_text">#80ffffff</color>
     <!-- The color white, equivalent to 0xffffffff -->
     <color name="white">#ffffffff</color>
