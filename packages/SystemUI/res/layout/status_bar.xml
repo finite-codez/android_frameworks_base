@@ -28,6 +28,7 @@
     android:focusable="false"
     android:descendantFocusability="afterDescendants"
     android:accessibilityPaneTitle="@string/status_bar"
+    android:background="@drawable/status_bar_blur_bg" <!-- Add some nice blur bg to status bar -->
     >
 
     <ImageView
