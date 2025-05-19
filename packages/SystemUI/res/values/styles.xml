@@ -21,6 +21,7 @@
         <item name="android:textSize">@dimen/status_bar_clock_size</item>
         <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
         <item name="android:textColor">@color/status_bar_clock_color</item>
+         <item name="android:textStyle">bold</item> <!-- Make the clock bolder -->
     </style>
 
     <style name="TextAppearance.StatusBar.UserChip" parent="@*android:style/TextAppearance.StatusBar.Icon">
@@ -38,6 +39,7 @@
         <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:textStyle">bold</item> <!-- Make the clock bolder -->
     </style>
 
     <style name="TextAppearance.StatusBar.Expanded.Date">
@@ -143,6 +145,7 @@
         <item name="android:letterSpacing">0.01</item>
         <item name="android:lineHeight">20sp</item>
         <item name="android:fontFamily">@*android:string/config_bodyFontFamilyMedium</item>
+        <item name="android:textStyle">bold</item> <!-- Make the text bolder -->
     </style>
 
     <style name="TextAppearance.QS.TileLabel.Secondary">

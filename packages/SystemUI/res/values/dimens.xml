@@ -172,25 +172,25 @@
          @*android:dimen/status_bar_system_icon_size) with some top and bottom padding embedded in
          the drawables themselves. So, the battery icon may need an extra 1dp of spacing so that its
          bottom still aligns with the bottom of all the other system icons. See b/258672854. -->
-    <dimen name="status_bar_battery_extra_vertical_spacing">1sp</dimen>
+    <dimen name="status_bar_battery_extra_vertical_spacing">2sp</dimen>
 
     <!-- The font size for the clock in the status bar. -->
-    <dimen name="status_bar_clock_size">14sp</dimen>
+    <dimen name="status_bar_clock_size">15sp</dimen>
 
     <!-- The starting padding for the clock in the status bar. -->
-    <dimen name="status_bar_clock_starting_padding">4dp</dimen>
+    <dimen name="status_bar_clock_starting_padding">5dp</dimen>
 
     <!-- The end padding for the clock in the status bar. -->
     <dimen name="status_bar_clock_end_padding">0dp</dimen>
 
     <!-- Starting padding for a left-aligned status bar clock -->
-    <dimen name="status_bar_left_clock_starting_padding">0dp</dimen>
+    <dimen name="status_bar_left_clock_starting_padding">1dp</dimen>
 
     <!-- End padding for left-aligned status bar clock -->
-    <dimen name="status_bar_left_clock_end_padding">2sp</dimen>
+    <dimen name="status_bar_left_clock_end_padding">3sp</dimen>
 
     <!-- Spacing after the wifi signals that is present if there are any icons following it. -->
-    <dimen name="status_bar_wifi_signal_spacer_width">2.5sp</dimen>
+    <dimen name="status_bar_wifi_signal_spacer_width">3sp</dimen>
 
     <!-- Size of the view displaying the wifi inout icon in the status bar. -->
     <dimen name="status_bar_wifi_inout_container_size">17sp</dimen>
@@ -224,7 +224,7 @@
     <dimen name="status_bar_system_icon_spacing">0sp</dimen>
 
     <!-- The amount to scale each of the status bar icons by. A value of 1 means no scaling. -->
-    <item name="status_bar_icon_scale_factor" format="float" type="dimen">1.0</item>
+    <item name="status_bar_icon_scale_factor" format="float" type="dimen">1.15</item>
 
     <dimen name="group_overflow_number_size">@*android:dimen/notification_text_size</dimen>
     <dimen name="group_overflow_number_padding">@*android:dimen/notification_content_margin_end
