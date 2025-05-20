@@ -117,6 +117,12 @@
         <item name="android:shadowRadius">?attr/shadowRadius</item>
     </style>
 
+    <style name="widget_small_heavy" parent="TextAppearance.Widget.Clock">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-black</item> <!-- heavy font -->
+        <item name="android:textSize">56sp</item> <!-- bigger size -->
+    </style>
+
     <style name="PasswordTheme" parent="Theme.SystemUI">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:colorControlNormal">?android:attr/textColorPrimary</item>
