@@ -13,12 +13,26 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:divider="@drawable/global_actions_list_divider"
-    android:showDividers="middle"
-/>
 
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/global_actions_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Blur background layer -->
+    <View
+        android:id="@+id/blur_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent" />
+
+    <!-- Actual power menu layout -->
+    <LinearLayout
+        android:id="@+id/global_actions_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:divider="@drawable/global_actions_list_divider"
+        android:showDividers="middle" />
+</FrameLayout>
