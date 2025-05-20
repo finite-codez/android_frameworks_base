@@ -13,7 +13,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/volume_dialog_root"
@@ -21,62 +22,73 @@
     android:layout_height="match_parent"
     app:layoutDescription="@xml/volume_dialog_scene">
 
+    <!-- Frosted glass effect using semi-transparent white -->
     <View
         android:id="@+id/volume_dialog_background"
         android:layout_width="@dimen/volume_dialog_width"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/volume_dialog_background_vertical_margin"
-        android:layout_marginBottom="@dimen/volume_dialog_background_vertical_margin"
-        android:background="@drawable/volume_dialog_background"
-        app:layout_constraintBottom_toBottomOf="@id/volume_dialog_settings"
-        app:layout_constraintEnd_toEndOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintStart_toStartOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintTop_toTopOf="@id/volume_ringer_drawer" />
+        android:background="#CCFFFFFF" <!-- semi-transparent white -->
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Main slider container at the top -->
+    <include
+        android:id="@+id/volume_dialog_main_slider_container"
+        layout="@layout/volume_dialog_slider"
+        android:layout_width="@dimen/volume_dialog_width"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Ringer drawer at the bottom -->
     <include
         android:id="@id/volume_ringer_drawer"
         layout="@layout/volume_ringer_drawer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/volume_dialog_components_spacing"
-        app:layout_constraintBottom_toTopOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintEnd_toEndOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintStart_toStartOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1" />
+        android:layout_marginTop="@dimen/volume_dialog_components_spacing"
+        app:layout_constraintBottom_toTopOf="@id/volume_dialog_settings"
+        app:layout_constraintTop_toBottomOf="@id/volume_dialog_main_slider_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <include
-        android:id="@+id/volume_dialog_main_slider_container"
-        layout="@layout/volume_dialog_slider" />
-
+    <!-- Settings button below the ringer buttons -->
     <ImageButton
         android:id="@+id/volume_dialog_settings"
         android:layout_width="@dimen/volume_dialog_button_size"
         android:layout_height="@dimen/volume_dialog_button_size"
         android:layout_marginTop="@dimen/volume_dialog_components_spacing"
-        android:background="@drawable/ripple_drawable_20dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/accessibility_volume_settings"
         android:soundEffectsEnabled="false"
         android:src="@drawable/horizontal_ellipsis"
         android:tint="?androidprv:attr/materialColorPrimary"
+        android:elevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/volume_ringer_drawer"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintStart_toStartOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintTop_toBottomOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintVertical_bias="0" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Floating sliders container next to main slider -->
     <LinearLayout
         android:id="@+id/volume_dialog_floating_sliders_container"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/volume_dialog_floating_sliders_vertical_padding_negative"
         android:layout_marginBottom="@dimen/volume_dialog_floating_sliders_vertical_padding_negative"
-        android:divider="@drawable/volume_dialog_floating_sliders_spacer"
-        android:gravity="bottom"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:showDividers="middle|beginning|end"
+        android:divider="@drawable/volume_dialog_floating_sliders_spacer"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        app:layout_constraintTop_toTopOf="@id/volume_dialog_main_slider_container"
         app:layout_constraintBottom_toBottomOf="@id/volume_dialog_main_slider_container"
-        app:layout_constraintEnd_toStartOf="@id/volume_dialog_background"
-        app:layout_constraintTop_toTopOf="@id/volume_dialog_main_slider_container" />
+        app:layout_constraintEnd_toStartOf="@id/volume_dialog_main_slider_container"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.motion.widget.MotionLayout>
