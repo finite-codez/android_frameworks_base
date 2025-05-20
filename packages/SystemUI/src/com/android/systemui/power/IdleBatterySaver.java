@@ -1,120 +1,112 @@
 package com.android.systemui.power;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.media.AudioManager;
+import android.os.BatteryManager;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.PowerManager;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * IdleBatterySaver automatically enables Battery Saver mode
  * after 1 hour of screen-off idle time (if not charging),
  * and disables it when the user turns the screen on or unlocks.
+ *
+ * Doesn't do so if the user is in a call or has media playing.
+ *
+ * Notifies user by toast after the device is picked up.
  */
+
 public class IdleBatterySaver {
     private static final String TAG = "IdleBatterySaver";
-
-    private static final long IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+    private static final int DEFAULT_IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
     private final Context mContext;
     private final PowerManager mPowerManager;
+    private final BatteryManager mBatteryManager;
     private final Handler mHandler;
+    private final AudioManager mAudioManager;
+    private final TelephonyManager mTelephonyManager;
 
-    private boolean mBatterySaverEnabledByIdle = false;
-    private boolean mIsCharging = false;
-
-    private final Runnable mEnableBatterySaverRunnable = () -> {
-        if (!mIsCharging && !mPowerManager.isPowerSaveMode()) {
-            Log.i(TAG, "Idle timeout reached — enabling Battery Saver");
-            setBatterySaver(true);
-            mBatterySaverEnabledByIdle = true;
-        } else {
-            Log.i(TAG, "Idle timeout but charging or Battery Saver already on, skipping");
-        }
-    };
-
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            switch (action) {
-                case Intent.ACTION_SCREEN_OFF:
-                    Log.i(TAG, "Screen OFF detected — starting idle timer");
-                    mHandler.postDelayed(mEnableBatterySaverRunnable, IDLE_TIMEOUT_MS);
-                    break;
-
-                case Intent.ACTION_SCREEN_ON:
-                case Intent.ACTION_USER_PRESENT:
-                    Log.i(TAG, "User active — cancelling idle timer");
-                    mHandler.removeCallbacks(mEnableBatterySaverRunnable);
-                    if (mBatterySaverEnabledByIdle) {
-                        Log.i(TAG, "Disabling Battery Saver due to user activity");
-                        setBatterySaver(false);
-                        mBatterySaverEnabledByIdle = false;
-                    }
-                    break;
-
-                case Intent.ACTION_BATTERY_CHANGED:
-                    int status = intent.getIntExtra("status", -1);
-                    mIsCharging = (status == PowerManager.BATTERY_STATUS_CHARGING
-                            || status == PowerManager.BATTERY_STATUS_FULL);
-                    Log.i(TAG, "Battery status changed, isCharging=" + mIsCharging);
-
-                    if (mIsCharging && mBatterySaverEnabledByIdle) {
-                        Log.i(TAG, "Charging started — disabling Battery Saver");
-                        setBatterySaver(false);
-                        mBatterySaverEnabledByIdle = false;
-                        mHandler.removeCallbacks(mEnableBatterySaverRunnable);
-                    }
-                    break;
-
-                default:
-                    Log.w(TAG, "Unexpected intent: " + action);
-                    break;
-            }
-        }
-    };
+    private Runnable mIdleRunnable;
+    private boolean mBatterySaverAutoEnabled = false;
 
     public IdleBatterySaver(Context context) {
         mContext = context;
-        mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        mHandler = new Handler(Looper.getMainLooper());
+        mPowerManager = context.getSystemService(PowerManager.class);
+        mBatteryManager = context.getSystemService(BatteryManager.class);
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        mHandler = new Handler(context.getMainLooper());
+
+        mIdleRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!mPowerManager.isPowerSaveMode() && !isCharging() && !isMediaPlaying() && !isInCall()) {
+                    mPowerManager.setPowerSaveMode(true);
+                    mBatterySaverAutoEnabled = true;
+                    showToast("Battery saver enabled after 1 hour idle.");
+                    Log.d(TAG, "Battery saver auto-enabled after idle.");
+                }
+            }
+        };
+    }
+
+    public void onUserActivity() {
+        if (mBatterySaverAutoEnabled) {
+            mPowerManager.setPowerSaveMode(false);
+            mBatterySaverAutoEnabled = false;
+            int batteryPercent = getBatteryLevel();
+            showToast("Turning off battery saver after idle. Drained " + batteryPercent + "%");
+            Log.d(TAG, "Battery saver auto-disabled on user activity.");
+        }
+        resetIdleTimer();
     }
 
     public void start() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        filter.addAction(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_USER_PRESENT);
-        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
-        mContext.registerReceiver(mReceiver, filter);
-        Log.i(TAG, "IdleBatterySaver started");
+        resetIdleTimer();
     }
 
     public void stop() {
-        try {
-            mContext.unregisterReceiver(mReceiver);
-        } catch (IllegalArgumentException e) {
-            Log.w(TAG, "Receiver already unregistered");
-        }
-        mHandler.removeCallbacks(mEnableBatterySaverRunnable);
-
-        if (mBatterySaverEnabledByIdle) {
-            setBatterySaver(false);
-            mBatterySaverEnabledByIdle = false;
-        }
-        Log.i(TAG, "IdleBatterySaver stopped");
+        mHandler.removeCallbacks(mIdleRunnable);
     }
 
-    private void setBatterySaver(boolean enabled) {
-        try {
-            mPowerManager.setPowerSaveMode(enabled);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to toggle Battery Saver", e);
-        }
+    private void resetIdleTimer() {
+        mHandler.removeCallbacks(mIdleRunnable);
+        int idleTimeout = getIdleTimeout();
+        mHandler.postDelayed(mIdleRunnable, idleTimeout);
+        Log.d(TAG, "Idle timer reset to " + idleTimeout + " ms");
+    }
+
+    private int getIdleTimeout() {
+        int timeout = Settings.Global.getInt(mContext.getContentResolver(),
+                "idle_battery_saver_timeout_ms", DEFAULT_IDLE_TIMEOUT_MS);
+        return timeout > 0 ? timeout : DEFAULT_IDLE_TIMEOUT_MS;
+    }
+
+    private boolean isCharging() {
+        return mBatteryManager.isCharging();
+    }
+
+    private int getBatteryLevel() {
+        return mBatteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+    }
+
+    private boolean isMediaPlaying() {
+        // Returns true if any audio stream is active
+        return mAudioManager.isMusicActive();
+    }
+
+    private boolean isInCall() {
+        // Returns true if phone call is active (off-hook or ringing)
+        int callState = mTelephonyManager.getCallState();
+        return callState == TelephonyManager.CALL_STATE_OFFHOOK || callState == TelephonyManager.CALL_STATE_RINGING;
+    }
+
+    private void showToast(String msg) {
+        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
     }
 }
