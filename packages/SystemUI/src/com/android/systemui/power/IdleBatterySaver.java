@@ -45,11 +45,19 @@ public class IdleBatterySaver {
         mIdleRunnable = new Runnable() {
             @Override
             public void run() {
+                if (!isFeatureEnabled()) {
+                    Log.d(TAG, "IdleBatterySaver is disabled via settings.");
+                    return;
+                }
+
                 if (!mPowerManager.isPowerSaveMode() && !isCharging() && !isMediaPlaying() && !isInCall()) {
                     mPowerManager.setPowerSaveMode(true);
                     mBatterySaverAutoEnabled = true;
-                    showToast("Battery saver enabled after 1 hour idle.");
+                    showToast("Battery saver enabled after idle.");
                     Log.d(TAG, "Battery saver auto-enabled after idle.");
+                } else {
+                    Log.d(TAG, "Conditions not met to enable Battery Saver: charging=" + isCharging()
+                            + ", mediaPlaying=" + isMediaPlaying() + ", inCall=" + isInCall());
                 }
             }
         };
@@ -77,8 +85,17 @@ public class IdleBatterySaver {
     private void resetIdleTimer() {
         mHandler.removeCallbacks(mIdleRunnable);
         int idleTimeout = getIdleTimeout();
-        mHandler.postDelayed(mIdleRunnable, idleTimeout);
-        Log.d(TAG, "Idle timer reset to " + idleTimeout + " ms");
+        if (isFeatureEnabled()) {
+            mHandler.postDelayed(mIdleRunnable, idleTimeout);
+            Log.d(TAG, "Idle timer reset to " + idleTimeout + " ms");
+        } else {
+            Log.d(TAG, "IdleBatterySaver not enabled; timer not scheduled.");
+        }
+    }
+
+    private boolean isFeatureEnabled() {
+        return Settings.Global.getInt(mContext.getContentResolver(),
+                "enable_idle_battery_saver", 0) == 1;
     }
 
     private int getIdleTimeout() {
@@ -103,7 +120,8 @@ public class IdleBatterySaver {
     private boolean isInCall() {
         // Returns true if phone call is active (off-hook or ringing)
         int callState = mTelephonyManager.getCallState();
-        return callState == TelephonyManager.CALL_STATE_OFFHOOK || callState == TelephonyManager.CALL_STATE_RINGING;
+        return callState == TelephonyManager.CALL_STATE_OFFHOOK
+                || callState == TelephonyManager.CALL_STATE_RINGING;
     }
 
     private void showToast(String msg) {
