@@ -244,21 +244,25 @@ public class PowerUI implements
         }
     }
 
-    void updateBatteryWarningLevels() {
-        int critLevel = mContext.getResources().getInteger(
-                com.android.internal.R.integer.config_criticalBatteryWarningLevel);
-        int warnLevel = mContext.getResources().getInteger(
-                com.android.internal.R.integer.config_lowBatteryWarningLevel);
+    void updateBatteryWarningLevels(BatteryState status) {
+            int critLevel = mContext.getResources().getInteger(
+                    com.android.internal.R.integer.config_criticalBatteryWarningLevel);
+            int warnLevel = mContext.getResources().getInteger(
+                    com.android.internal.R.integer.config_lowBatteryWarningLevel);
 
-        if (warnLevel < critLevel) {
-            warnLevel = critLevel;
-        }
+            if (warnLevel < critLevel) {
+                warnLevel = critLevel;
+            }
 
-        mLowBatteryReminderLevels[0] = warnLevel;
-        mLowBatteryReminderLevels[1] = critLevel;
-        mLowBatteryAlertCloseLevel = mLowBatteryReminderLevels[0]
-                + mContext.getResources().getInteger(
-                        com.android.internal.R.integer.config_lowBatteryCloseWarningBump);
+            if (status.level == 15 && !mBatterySaverController.isBatterySaver()) {
+                Toast.makeText(mContext, "Battery at 15%. Turn on Battery Saver?", Toast.LENGTH_LONG).show(); // Update the user about their low battery status and ask them to enable battery saver.
+            }
+
+            mLowBatteryReminderLevels[0] = warnLevel;
+            mLowBatteryReminderLevels[1] = critLevel;
+            mLowBatteryAlertCloseLevel = mLowBatteryReminderLevels[0]
+                    + mContext.getResources().getInteger(
+                            com.android.internal.R.integer.config_lowBatteryCloseWarningBump);
     }
 
     /**
