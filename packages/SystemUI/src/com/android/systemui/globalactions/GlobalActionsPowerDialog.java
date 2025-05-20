@@ -37,6 +37,16 @@ public class GlobalActionsPowerDialog {
      * Create a dialog for displaying Shut Down and Restart actions.
      */
     public static Dialog create(@NonNull Context context, ListAdapter adapter) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { 
+            View blurView = mRootView.findViewById(R.id.blur_background);           // Adding Blur to the power menu
+            if (blurView != null) {                                                 // This only works on devices with Android 12/S or higher
+                blurView.setRenderEffect(
+                    RenderEffect.createBlurEffect(30f, 30f, Shader.TileMode.CLAMP)  // Blur is resource intensive so we choose a light value like 25 or 20; 25 chosen
+                );                                                                  // at the time of first application; May not be edited later if found Stable.
+            }
+        }
+
         ViewGroup listView = (ViewGroup) LayoutInflater.from(context).inflate(
                 com.android.systemui.res.R.layout.global_actions_power_dialog_flow, null);
 
