@@ -186,6 +186,18 @@ public final class Settings {
             "android.settings.LOCATION_SOURCE_SETTINGS";
 
     /**
+     * Whether Idle Battery Saver should be triggered after 1 hour of idle.
+     * 1 = enabled, 0 = disabled
+     */
+    public static final String ENABLE_IDLE_BATTERY_SAVER = "enable_idle_battery_saver";
+
+    /**
+     * How long (in milliseconds) of idle time before triggering battery saver.
+     * Defaults to 1 hour (3600000ms)
+     */
+    public static final String IDLE_BATTERY_SAVER_TIMEOUT_MS = "idle_battery_saver_timeout_ms";
+
+    /**
      * Activity Action: Show settings to allow configuration of location controller extra package.
      * <p>
      * In some cases, a matching Activity may not exist, so ensure you
