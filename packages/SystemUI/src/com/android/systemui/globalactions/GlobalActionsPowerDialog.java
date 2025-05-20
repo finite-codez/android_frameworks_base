@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.systemui.globalactions;
 
 import android.annotation.NonNull;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,23 +41,33 @@ public class GlobalActionsPowerDialog {
      * Create a dialog for displaying Shut Down and Restart actions.
      */
     public static Dialog create(@NonNull Context context, ListAdapter adapter) {
-        ViewGroup listView = (ViewGroup) LayoutInflater.from(context).inflate(
+
+        // Inflate the dialog layout
+        ViewGroup rootView = (ViewGroup) LayoutInflater.from(context).inflate(
                 com.android.systemui.res.R.layout.global_actions_power_dialog_flow, null);
 
-        Flow flow = listView.findViewById(com.android.systemui.res.R.id.power_flow);
+        // Add blur effect (Android 12+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            View blurView = rootView.findViewById(com.android.systemui.res.R.id.blur_background);
+            if (blurView != null) {
+                blurView.setRenderEffect(
+                        RenderEffect.createBlurEffect(25f, 25f, Shader.TileMode.CLAMP));
+            }
+        }
 
+        // Add the action buttons
+        Flow flow = rootView.findViewById(com.android.systemui.res.R.id.power_flow);
         for (int i = 0; i < adapter.getCount(); i++) {
-            View action = adapter.getView(i, null, listView);
+            View action = adapter.getView(i, null, rootView);
             action.setId(View.generateViewId());
-            listView.addView(action);
+            rootView.addView(action);
             flow.addView(action);
         }
 
         Resources res = context.getResources();
-
         int nElementsWrap = res.getInteger(
                 com.android.systemui.res.R.integer.power_menu_lite_max_columns);
-        int nChildren = listView.getChildCount() - 1; // don't count flow element
+        int nChildren = rootView.getChildCount() - 1; // don't count flow
 
         // Avoid having just one action on the last row if there are more than 2 columns because
         // it looks unbalanced. Instead, bring the column size down to balance better.
@@ -62,9 +76,10 @@ public class GlobalActionsPowerDialog {
         }
         flow.setMaxElementsWrap(nElementsWrap);
 
+        // Set up the dialog
         Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(listView);
+        dialog.setContentView(rootView);
 
         Window window = dialog.getWindow();
         window.setType(WindowManager.LayoutParams.TYPE_VOLUME_OVERLAY);

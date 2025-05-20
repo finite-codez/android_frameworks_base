@@ -13,6 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -25,6 +26,21 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
+    <!-- Blur background layer -->
+    <View
+        android:id="@+id/blur_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="0dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:clipChildren="false"
+        android:clipToOutline="false"/>
+
+    <!-- Power action layout -->
     <androidx.constraintlayout.helper.widget.Flow
         android:id="@+id/power_flow"
         android:layout_width="match_parent"
