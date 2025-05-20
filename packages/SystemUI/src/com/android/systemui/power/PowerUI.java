@@ -59,6 +59,8 @@ import com.android.systemui.settings.UserTracker;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 
+private IdleBatterySaver mIdleBatterySaver; // Import IdleBatterySaver features
+
 import kotlin.Lazy;
 
 import java.io.PrintWriter;
@@ -195,6 +197,9 @@ public class PowerUI implements
         mReceiver.init();
         mUserTracker.addCallback(mUserChangedCallback, mContext.getMainExecutor());
         mWakefulnessLifecycle.addObserver(mWakefulnessObserver);
+
+        mIdleBatterySaver = new IdleBatterySaver(mContext);
+        mIdleBatterySaver.start();
 
         // Check to see if we need to let the user know that the phone previously shut down due
         // to the temperature being too high.
