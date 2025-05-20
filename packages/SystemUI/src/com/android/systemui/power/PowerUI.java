@@ -244,6 +244,7 @@ public class PowerUI implements
         }
     }
 
+    private boolean hasWarnedAt15 = false; // prevent toast spamming
     void updateBatteryWarningLevels(BatteryState status) {
             int critLevel = mContext.getResources().getInteger(
                     com.android.internal.R.integer.config_criticalBatteryWarningLevel);
@@ -254,8 +255,11 @@ public class PowerUI implements
                 warnLevel = critLevel;
             }
 
-            if (status.level == 15 && !mBatterySaverController.isBatterySaver()) {
-                Toast.makeText(mContext, "Battery at 15%. Turn on Battery Saver?", Toast.LENGTH_LONG).show(); // Update the user about their low battery status and ask them to enable battery saver.
+            if (status.level == 15 && !mBatterySaverController.isBatterySaver() && !hasWarnedAt15) {
+                hasWarnedAt15 = true; // prevent toast spamming
+                Toast.makeText(mContext, "Battery at 15%. Turn on Battery Saver?", Toast.LENGTH_LONG).show(); // Warn user about low power and ask them to enable battery save
+            } else if (status.level > 15) {
+                hasWarnedAt15 = false;
             }
 
             mLowBatteryReminderLevels[0] = warnLevel;
@@ -263,7 +267,7 @@ public class PowerUI implements
             mLowBatteryAlertCloseLevel = mLowBatteryReminderLevels[0]
                     + mContext.getResources().getInteger(
                             com.android.internal.R.integer.config_lowBatteryCloseWarningBump);
-    }
+     }
 
     /**
      * Buckets the battery level.
@@ -337,6 +341,12 @@ public class PowerUI implements
                 final int oldInvalidCharger = mInvalidCharger;
                 mInvalidCharger = intent.getIntExtra(BatteryManager.EXTRA_INVALID_CHARGER, 0);
                 mLastBatteryStateSnapshot = mCurrentBatteryStateSnapshot;
+
+                BatteryStatus status = new BatteryStatus();
+                status.level = mBatteryLevel;
+                status.status = mBatteryStatus;
+                status.plugged = (mPlugType != 0);
+                updateBatteryWarningLevels(status);
 
                 final boolean plugged = mPlugType != 0;
                 final boolean oldPlugged = oldPlugType != 0;
