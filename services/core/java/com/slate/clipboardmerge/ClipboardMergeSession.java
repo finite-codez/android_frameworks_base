@@ -1,6 +1,8 @@
 /*
- * Copyright (C) SlateOS
- * Ask for permission before copying, using, or modifying this file.
+ * Copyright (C) 2025 SlateOS
+ *
+ * This file is part of the SlateOS project. All rights reserved.
+ * Redistribution or use in other projects requires prior permission.
  */
 
 package com.slate.clipboardmerge;
@@ -8,33 +10,31 @@ package com.slate.clipboardmerge;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a single clipboard merge session.
- */
 public class ClipboardMergeSession {
+    private final List<String> clipboardSnippets = new ArrayList<>();
+    private long lastCopyTimestamp = 0L;
 
-    private final List<String> entries;
-    private long lastUpdatedTime;
-
-    public ClipboardMergeSession() {
-        this.entries = new ArrayList<>();
-        this.lastUpdatedTime = System.currentTimeMillis();
+    public void addSnippet(String text) {
+        if (text != null && !text.isEmpty()) {
+            clipboardSnippets.add(text);
+            lastCopyTimestamp = System.currentTimeMillis();
+        }
     }
 
-    public void addEntry(String text) {
-        entries.add(text);
-        lastUpdatedTime = System.currentTimeMillis();
+    public String getMergedContent() {
+        return String.join("\n", clipboardSnippets);
     }
 
-    public String getMergedText() {
-        return String.join("\n", entries);
+    public void reset() {
+        clipboardSnippets.clear();
+        lastCopyTimestamp = 0L;
     }
 
-    public long getLastUpdatedTime() {
-        return lastUpdatedTime;
+    public long getLastCopyTimestamp() {
+        return lastCopyTimestamp;
     }
 
     public boolean isEmpty() {
-        return entries.isEmpty();
+        return clipboardSnippets.isEmpty();
     }
 }
