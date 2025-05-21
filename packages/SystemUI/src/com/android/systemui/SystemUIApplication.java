@@ -60,6 +60,8 @@ import java.util.TreeMap;
 
 import javax.inject.Provider;
 
+import com.android.server.clipboard.ClipboardUIManager; // Import ClipboardUIManager
+
 /**
  * Application class for SystemUI.
  */
@@ -127,6 +129,8 @@ public class SystemUIApplication extends Application implements
         // application theme in the manifest does only work for activities. Keep this in sync with
         // the theme set there.
         setTheme(R.style.Theme_SystemUI);
+
+        ClipboardUIManager.initialize(getApplicationContext()); // Add ClipboardUIManager Toasts
 
         View.setTraceLayoutSteps(
                 rootComponent.getSystemPropertiesHelper()
