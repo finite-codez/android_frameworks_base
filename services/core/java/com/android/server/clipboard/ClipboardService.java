@@ -656,7 +656,7 @@ public class ClipboardService extends SystemService {
 
         @Override
         public ClipData getPrimaryClip(
-                String pkg, String attributionTag, @UserIdInt int userId, int deviceId) {
+            String pkg, String attributionTag, @UserIdInt int userId, int deviceId) {
             final int intendingUid = getIntendingUid(pkg, userId);
             final int intendingUserId = UserHandle.getUserId(intendingUid);
             final int intendingDeviceId = getIntendingDeviceId(deviceId, intendingUid);
@@ -667,29 +667,41 @@ public class ClipboardService extends SystemService {
                             intendingUid,
                             intendingUserId,
                             intendingDeviceId)
-                    || isDeviceLocked(intendingUserId, deviceId)) {
+                         || isDeviceLocked(intendingUserId, deviceId)) {
                 return null;
             }
-            synchronized (mLock) {
-                try {
-                    addActiveOwnerLocked(intendingUid, intendingDeviceId, pkg);
-                } catch (SecurityException e) {
-                    // Permission could not be granted - URI may be invalid
-                    Slog.i(TAG, "Could not grant permission to primary clip. Clearing clipboard.");
-                    setPrimaryClipInternalLocked(null, intendingUid, intendingDeviceId, pkg);
-                    return null;
-                }
 
-                Clipboard clipboard = getClipboardLocked(intendingUserId, intendingDeviceId);
-                if (clipboard == null) {
-                    return null;
-                }
-                showAccessNotificationLocked(
-                        pkg, intendingUid, intendingUserId, clipboard, deviceId);
-                notifyTextClassifierLocked(clipboard, pkg, intendingUid);
-                if (clipboard.primaryClip != null) {
-                    scheduleAutoClear(userId, intendingUid, intendingDeviceId);
-                }
+        synchronized (mLock) {
+            try {
+                addActiveOwnerLocked(intendingUid, intendingDeviceId, pkg);
+            } catch (SecurityException e) {
+                Slog.i(TAG, "Could not grant permission to primary clip. Clearing clipboard.");
+                setPrimaryClipInternalLocked(null, intendingUid, intendingDeviceId, pkg);
+                return null;
+            }
+
+            Clipboard clipboard = getClipboardLocked(intendingUserId, intendingDeviceId);
+            if (clipboard == null) {
+                return null;
+            }
+
+            // Return merged clipboard if available
+            String mergedText = ClipboardMergeManager.getInstance().getMergedText();
+            if (mergedText != null && !mergedText.isEmpty()) {
+                // 🔔 Show feedback to user before returning
+                ClipboardUIManager.getInstance().showMergedToast(intendingUserId, mergedText);
+
+                ClipData.Item item = new ClipData.Item(mergedText);
+                return new ClipData("Merged Clip", new String[]{"text/plain"}, item);
+            }
+
+            // Only run these if not returning merged clipboard
+            showAccessNotificationLocked(pkg, intendingUid, intendingUserId, clipboard, deviceId);
+            notifyTextClassifierLocked(clipboard, pkg, intendingUid);
+            if (clipboard.primaryClip != null) {
+                scheduleAutoClear(userId, intendingUid, intendingDeviceId);
+            }
+
                 return clipboard.primaryClip;
             }
         }
@@ -942,6 +954,14 @@ public class ClipboardService extends SystemService {
             @Nullable ClipData clip, int uid, int deviceId, @Nullable String sourcePackage) {
         if (deviceId == DEVICE_ID_DEFAULT) {
             mClipboardMonitor.accept(clip);
+        }
+
+        // Clipboard Merge Feature: Inject here
+        if (clip != null && clip.getItemCount() > 0) {
+            CharSequence text = clip.getItemAt(0).getText();
+            if (text != null) {
+                ClipboardMergeManager.getInstance().onCopy(text.toString(), System.currentTimeMillis());
+            }
         }
 
         final int userId = UserHandle.getUserId(uid);
