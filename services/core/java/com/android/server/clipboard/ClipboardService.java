@@ -686,13 +686,13 @@ public class ClipboardService extends SystemService {
             }
 
             // Return merged clipboard if available
-            String mergedText = ClipboardMergeManager.getInstance().getMergedText();
             if (mergedText != null && !mergedText.isEmpty()) {
-                // 🔔 Show feedback to user before returning
+                // Show feedback to user before returning
                 ClipboardUIManager.getInstance().showMergedToast(intendingUserId, mergedText);
 
                 ClipData.Item item = new ClipData.Item(mergedText);
-                return new ClipData("Merged Clip", new String[]{"text/plain"}, item);
+                ClipData mergedClip = new ClipData("Merged Clip", new String[]{"text/plain"}, item);
+                return mergedClip;
             }
 
             // Only run these if not returning merged clipboard
