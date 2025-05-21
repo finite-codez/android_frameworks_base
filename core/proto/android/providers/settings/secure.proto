@@ -53,6 +53,10 @@ message SecureSettingsProto {
         optional SettingProto captioning_typeface = 14 [ (android.privacy).dest = DEST_AUTOMATIC ];
         optional SettingProto captioning_font_scale = 15 [ (android.privacy).dest = DEST_AUTOMATIC ];
         optional SettingProto display_daltonizer_enabled = 16 [ (android.privacy).dest = DEST_AUTOMATIC ];
+
+        // Whether the lock screen wallpaper should be blurred.
+        optional bool lock_screen_wallpaper_blur = 295;
+        
         // Integer property that specifies the type of color space adjustment to perform.
         optional SettingProto display_daltonizer = 17 [ (android.privacy).dest = DEST_AUTOMATIC ];
         optional SettingProto display_inversion_enabled = 18 [ (android.privacy).dest = DEST_AUTOMATIC ];
