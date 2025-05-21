@@ -6981,6 +6981,12 @@ public final class Settings {
         // com.android.providers.settings.SettingsProtoDumpUtil#dumpProtoSecureSettingsLocked.
 
         /**
+         * Whether to blur the lock screen wallpaper.
+         * 0 = disabled, 1 = enabled
+         */
+        public static final String LOCK_SCREEN_WALLPAPER_BLUR = "lockscreen_wallpaper_blur";
+
+        /**
          * The content:// style URL for this table
          */
         public static final Uri CONTENT_URI =
@@ -6989,12 +6995,6 @@ public final class Settings {
         @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.R, trackingBug = 170729553)
         private static final ContentProviderHolder sProviderHolder =
                 new ContentProviderHolder(CONTENT_URI);
-
-        /**
-         * Whether to blur the lock screen wallpaper.
-         * 0 = disabled, 1 = enabled
-         */
-        public static final String LOCK_SCREEN_WALLPAPER_BLUR = "lockscreen_wallpaper_blur";
 
         // Populated lazily, guarded by class object:
         @UnsupportedAppUsage
