@@ -1705,6 +1705,10 @@ class SettingsProtoDumpUtil {
 
         s.dumpHistoricalOperations(p, SecureSettingsProto.HISTORICAL_OPERATIONS);
 
+        dumpSetting(s, p,
+            Settings.Secure.LOCK_SCREEN_WALLPAPER_BLUR,
+            SecureSettingsProto.LOCK_SCREEN_WALLPAPER_BLUR);
+
         // This uses the same order as in SecureSettingsProto.
 
         final long accessibilityToken = p.start(SecureSettingsProto.ACCESSIBILITY);
