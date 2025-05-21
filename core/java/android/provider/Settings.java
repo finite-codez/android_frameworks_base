@@ -6990,6 +6990,12 @@ public final class Settings {
         private static final ContentProviderHolder sProviderHolder =
                 new ContentProviderHolder(CONTENT_URI);
 
+        /**
+         * Whether to blur the lock screen wallpaper.
+         * 0 = disabled, 1 = enabled
+         */
+        public static final String LOCK_SCREEN_WALLPAPER_BLUR = "lockscreen_wallpaper_blur";
+
         // Populated lazily, guarded by class object:
         @UnsupportedAppUsage
         private static final NameValueCache sNameValueCache = new NameValueCache(
