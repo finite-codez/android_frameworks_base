@@ -35,7 +35,7 @@
             android:id="@+id/quick_settings_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
+            android:background="@drawable/qs_blur_background"
             android:focusable="false"
             android:importantForAccessibility="yes"
             android:clipToPadding="false"
