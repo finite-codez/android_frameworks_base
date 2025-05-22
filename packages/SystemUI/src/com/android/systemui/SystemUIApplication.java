@@ -269,6 +269,9 @@ public class SystemUIApplication extends Application implements
         }
         mServices = new CoreStartable[startables.size() + (vendorComponent == null ? 0 : 1)];
 
+        Handler handler = new Handler(Looper.getMainLooper());
+        GrayscaleController grayscaleController = new GrayscaleController(this, handler);
+
         if (!mBootCompleteCache.isBootComplete()) {
             // check to see if maybe it was already completed long before we began
             // see ActivityManagerService.finishBooting()
