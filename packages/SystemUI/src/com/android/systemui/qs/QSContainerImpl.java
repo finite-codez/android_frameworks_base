@@ -79,6 +79,10 @@ public class QSContainerImpl extends FrameLayout implements Dumpable {
         mHeader = findViewById(R.id.header);
         mQSCustomizer = findViewById(R.id.qs_customize);
         setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+
+       if (SystemProperties.getBoolean("persist.sys.qs.blur", true) && getRenderEffect() == null) {
+           setRenderEffect(RenderEffect.createBlurEffect(15f, 15f, Shader.TileMode.CLAMP));
+       }
     }
 
     void setSceneContainerEnabled(boolean enabled) {

@@ -1,0 +1,7 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <com.android.systemui.blur.BlurDrawable
+            android:blurRadius="20"
+            android:blurEnabled="true" />
+    </item>
+</layer-list>
