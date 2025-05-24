@@ -1,88 +1,80 @@
 package com.android.systemui.echotap;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.PowerManager;
-import android.os.SystemClock;
 import android.util.Log;
 
-import com.android.systemui.SystemUI;
-
-public class EchoTapController extends SystemUI implements SensorEventListener {
+public class EchoTapController implements SensorEventListener {
     private static final String TAG = "EchoTapController";
-    private static final int TAP_THRESHOLD = 3;
-    private static final long TAP_WINDOW_MS = 1500;
-
-    private final SensorManager sensorManager;
-    private final PowerManager powerManager;
-    private final Sensor accelerometer;
-    private final Sensor proximitySensor;
-
+    private final Context mContext;
+    private final SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private boolean isScreenDown = false;
     private int tapCount = 0;
-    private long firstTapTime = 0;
-    private boolean isFaceDown = false;
-    private final Handler handler;
+    private Handler handler = new Handler();
+    private Runnable tapResetRunnable;
+
+    private boolean isRecording = false;
 
     public EchoTapController(Context context) {
-        super(context);
-        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        handler = new Handler(Looper.getMainLooper());
+        mContext = context;
+        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        tapResetRunnable = () -> tapCount = 0;
     }
 
-    @Override
     public void start() {
-        if (accelerometer != null) {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        }
-        if (proximitySensor != null) {
-            sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-        }
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    public void stop() {
+        mSensorManager.unregisterListener(this);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-            isFaceDown = event.values[0] < proximitySensor.getMaximumRange();
+        float z = event.values[2];
+        // Detect if phone is face down (z < -9) approx
+        if (z < -9 && !isScreenDown) {
+            isScreenDown = true;
+            tapCount = 0; // reset taps on flip
+        } else if (z > 0 && isScreenDown) {
+            isScreenDown = false;
+            tapCount = 0;
         }
+    }
 
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && isFaceDown && !powerManager.isInteractive()) {
-            float acceleration = (float) Math.sqrt(
-                event.values[0] * event.values[0] +
-                event.values[1] * event.values[1] +
-                event.values[2] * event.values[2]);
+    public void onTapDetected() {
+        if (!isScreenDown) return;
 
-            if (acceleration > 15) { // rough tap threshold
-                long now = SystemClock.elapsedRealtime();
-                if (firstTapTime == 0 || (now - firstTapTime > TAP_WINDOW_MS)) {
-                    tapCount = 1;
-                    firstTapTime = now;
-                } else {
-                    tapCount++;
-                    if (tapCount == TAP_THRESHOLD) {
-                        Log.d(TAG, "Triple tap detected while face-down and screen off");
-                        triggerRecording();
-                        tapCount = 0;
-                        firstTapTime = 0;
-                    }
-                }
-            }
+        tapCount++;
+        handler.removeCallbacks(tapResetRunnable);
+        handler.postDelayed(tapResetRunnable, 1500);
+
+        if (tapCount == 3) {
+            toggleRecording();
+            tapCount = 0;
+        }
+    }
+
+    private void toggleRecording() {
+        Intent intent = new Intent(mContext, EchoTapService.class);
+        if (isRecording) {
+            mContext.stopService(intent);
+            isRecording = false;
+            Log.d(TAG, "Stopped recording");
+        } else {
+            mContext.startService(intent);
+            isRecording = true;
+            Log.d(TAG, "Started recording");
         }
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Not used
-    }
-
-    private void triggerRecording() {
-        EchoTapService.startRecording(mContext);
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) { }
 }
