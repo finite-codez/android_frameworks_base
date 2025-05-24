@@ -480,6 +480,10 @@
             </intent-filter>
         </activity>
 
+        <service
+                android:name=".echotap.EchoTapService"
+                android:exported="false" />
+
         <activity android:name=".screenshot.appclips.AppClipsActivity"
             android:theme="@style/AppClipsActivity"
             android:process=":appclips.screenshot"

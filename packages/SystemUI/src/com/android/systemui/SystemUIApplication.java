@@ -61,6 +61,7 @@ import java.util.TreeMap;
 import javax.inject.Provider;
 
 import com.android.server.clipboard.ClipboardUIManager; // Import ClipboardUIManager
+import com.android.systemui.echotap.EchoTapStartable; // Import EchoTap
 
 /**
  * Application class for SystemUI.
@@ -271,6 +272,8 @@ public class SystemUIApplication extends Application implements
 
         Handler handler = new Handler(Looper.getMainLooper());
         GrayscaleController grayscaleController = new GrayscaleController(this, handler);
+
+        startables.put(EchoTapStartable.class, () -> new EchoTapStartable(this));
 
         if (!mBootCompleteCache.isBootComplete()) {
             // check to see if maybe it was already completed long before we began
